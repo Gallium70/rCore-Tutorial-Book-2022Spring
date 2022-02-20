@@ -288,8 +288,29 @@
 <div class="section" id="id1">
 <h2>编程作业<a class="headerlink" href="#id1" title="永久链接至标题">¶</a></h2>
 <div class="section" id="id2">
-<h3>银行家算法<a class="headerlink" href="#id2" title="永久链接至标题">¶</a></h3>
+<h3>银行家算法——分数更新<a class="headerlink" href="#id2" title="永久链接至标题">¶</a></h3>
+<div class="admonition note">
+<p class="admonition-title">注解</p>
 <p>本实验为用户态实验，请在 Linux 环境下完成。</p>
+</div>
+<p>背景：在智能体大赛平台 <a class="reference external" href="https://www.saiblo.net">Saiblo</a> 网站上每打完一场双人天梯比赛后需要用 ELO 算法更新双方比分。由于 Saiblo 的评测机并发性很高，且 ELO 算法中的分值变动与双方变动前的分数有关，因此更新比分前时必须先为两位选手加锁。</p>
+<p>作业：请模拟一下上述分数更新过程，简便起见我们简化为有 p 位选手参赛（编号 [0, p) 或 [1, p] ），初始分值为 1000 分，有 m 个评测机线程（生产者）给出随机的评测结果（两位不同选手的编号以及胜负结果，结果可能为平局），有 n 个 worker 线程（消费者）获取结果队列并更新数据库（全局变量等共享数据）记录的分数。m 个评测机各自模拟 k 场对局结果后结束线程，全部对局比分更新完成后主线程打印每位选手最终成绩以及所有选手分数之和。</p>
+<p>上述参数 p、m、n、k 均为可配置参数（命令行传参或程序启动时从stdin输入）。</p>
+<p>简便起见不使用 ELO 算法，简化更新规则为：若不为平局，当 胜者分数 &gt;= 败者分数 时胜者 +20，败者 -20，否则胜者 +30，败者 -30；若为平局，分高者 -10，分低者+10（若本就同分保持则不变）。</p>
+<dl class="simple">
+<dt>消费者核心部分可参考如下伪码：</dt><dd><p>获取选手A的锁
+获取选手B的锁
+更新A、B分数
+睡眠 1ms（模拟数据库更新延时）
+释放选手B的锁
+释放选手A的锁</p>
+</dd>
+<dt>tips:</dt><dd><ul class="simple">
+<li><p>由于 ELO 以及本题中给出的简化更新算法均为零和算法，因此出现冲突后可以从所有选手分数之和明显看出来，正确处理时它应该永远为 1000p</p></li>
+<li><p>将一个 worker 线程看作哲学家，将 worker 正在处理的一场对局的两位选手看作两根筷子，则得到了经典的哲学家就餐问题</p></li>
+</ul>
+</dd>
+</dl>
 </div>
 <div class="section" id="eventfd">
 <h3>实现 eventfd<a class="headerlink" href="#eventfd" title="永久链接至标题">¶</a></h3>
@@ -417,7 +438,7 @@
             <ul>
 <li><a class="reference internal" href="#">chapter8练习</a><ul>
 <li><a class="reference internal" href="#id1">编程作业</a><ul>
-<li><a class="reference internal" href="#id2">银行家算法</a></li>
+<li><a class="reference internal" href="#id2">银行家算法——分数更新</a></li>
 <li><a class="reference internal" href="#eventfd">实现 eventfd</a></li>
 <li><a class="reference internal" href="#id4">实验要求</a></li>
 </ul>
